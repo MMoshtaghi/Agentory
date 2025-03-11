@@ -43,7 +43,7 @@ Once the system is running, you can:
 
 
 ## License
-This project is licensed under the MIT License. See `LICENSE` for more details.
+See `LICENSE` for more details.
 
 ## Contributing
 Feel free to submit issues and pull requests! 🚀
