@@ -8,6 +8,24 @@ This project implements a **Multi-Agent Web Search** system using `smolagents`. 
 - **LLM Support**: Works with models from `LiteLLM`, `HfApi`, and `Transformers`.
 - **Gradio UI**: Interactive web interface for seamless user interaction.
 
+## What's the Multi-Agent architecture?
+```python
+"""
+              +----------------+
+              | Manager agent  |
+              +----------------+
+                       |
+        _______________|______________
+       |                              |
+Code Interpreter            +------------------+
+    tool                    | Web Search agent |
+                            +------------------+
+                               |            |
+                        Web Search tool     |
+                                   Visit webpage tool
+"""
+```
+
 ## Installation
 Ensure you have Python 3.8+ installed. Clone the repository and install dependencies:
 
