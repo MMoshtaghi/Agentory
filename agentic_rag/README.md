@@ -9,6 +9,10 @@ This repository provides an agentic Retrieval-Augmented Generation (RAG) system 
 - **Semantic Search**: Retrieves relevant documents using HuggingFace embeddings.
 - **Gradio UI**: Provides an interactive web interface for easy usage.
 
+## What's the Agentic RAG?
+Here is an illustration for two different system that perform Retrieval Augmented Generation: one is the classical, its graph is fixed. But the other is agentic, one loop in the graph can be repeated as needed.
+![classical_vs_agentic_rag.png](images/classical_vs_agentic_rag.png)
+
 ## Installation
 Ensure you have Python 3.8+ installed. Then, clone the repository and install the dependencies:
 
