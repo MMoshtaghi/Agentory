@@ -1,0 +1,19 @@
+[project]
+name = "agentory"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "chromadb>=0.6.3",
+    "datasets>=3.5.0",
+    "dotenv>=0.9.9",
+    "gradio>=5.25.0",
+    "langchain>=0.3.23",
+    "langchain-chroma>=0.2.2",
+    "langchain-huggingface>=0.1.2",
+    "litellm>=1.66.0",
+    "markdownify>=1.1.0",
+    "mcp[cli]>=1.6.0",
+    "smolagents[mcp]>=1.13.0",
+]
