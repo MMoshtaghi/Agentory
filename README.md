@@ -30,8 +30,18 @@ A **multi-agent system** that performs **web searches** and retrieves **webpage 
 
 ---
 
-## Installation
-Each project has its own installation guide and dependencies. Navigate to the respective directories and follow the instructions in their `README.md` files.
+## Quick Start
+- Clone the repo.
+[uv](https://docs.astral.sh/uv/) is recommended for easy install and setup for all agents in this repo. You only need run each script in their directory (`uv` will create the venv and install all the dependencies for you).
+```bash
+cd agentic_rag
+uv run agentic_rag_chromadb.py
+```
+
+```bash
+cd multi_agent
+uv run multi_agent_web_search.py
+```
 
 ## License
 See `LICENSE` for more details.

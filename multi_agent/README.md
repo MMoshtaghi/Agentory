@@ -26,24 +26,13 @@ Code Interpreter            +------------------+
 """
 ```
 
-## Installation
-Ensure you have Python 3.8+ installed. Clone the repository and install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-Set up your API key by creating a `.env` file:
-
-```bash
-echo "GROQ_API_KEY=your_api_key_here" > .env
-```
-
 ## Quick Start
-Run the following command to start the Multi-Agent Web Search system:
-
+- Clone the repo.
+- Install [uv](https://docs.astral.sh/uv/), as the project manager.
+- Run the following command:
 ```bash
-python main.py --model_src LiteLLM --model groq/qwen-2.5-coder-32b
+cd multi_agent
+uv run multi_agent_web_search.py
 ```
 
 ### What Happens?

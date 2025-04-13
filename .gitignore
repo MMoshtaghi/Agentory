@@ -4,3 +4,11 @@
 # virtual environment
 .venv
 
+# VSCode files
+.vscode/
+
+# DBs
+chroma_db/
+
+# others
+.gradio/

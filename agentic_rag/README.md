@@ -14,24 +14,13 @@ Here is an illustration for two different system that perform Retrieval Augmente
 ![classical_vs_agentic_rag.png](images/classical_vs_agentic_rag.png)
 [image source](https://huggingface.co/blog/beating-gaia)
 
-## Installation
-Ensure you have Python 3.8+ installed. Then, clone the repository and install the dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-Additionally, set up your environment variables by creating a `.env` file:
-
-```bash
-echo "GROQ_API_KEY=your_api_key_here" > .env
-```
-
 ## Quick Start
-Run the following command to start the Agentic RAG system:
-
+- Clone the repo.
+- Install [uv](https://docs.astral.sh/uv/), as the project manager.
+- Run the following command:
 ```bash
-python main.py --model_src LiteLLM --model groq/qwen-2.5-coder-32b
+cd agentic_rag
+uv run agentic_rag_chromadb.py
 ```
 
 This will:
