@@ -58,9 +58,7 @@ def visit_webpage(url: str) -> str:
 
 
 def parse_args():
-    help_msg = """\
-Multi Agent Web Search
-"""
+    help_msg = """Multi Agent Web Search"""
     parser = argparse.ArgumentParser(description=help_msg, formatter_class=argparse.RawTextHelpFormatter)
     # Essential Args
     # For anthropic: change args below to 'LiteLLM', 'anthropic/claude-3-5-sonnet-20240620' and "ANTHROPIC_API_KEY"

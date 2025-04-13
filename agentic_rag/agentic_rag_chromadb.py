@@ -91,9 +91,7 @@ class RetrieverTool(Tool):
 
 
 def parse_args():
-    help_msg = """\
-Agentic RAG with ChromaDB
-"""
+    help_msg = """Agentic RAG with ChromaDB"""
     parser = argparse.ArgumentParser(description=help_msg, formatter_class=argparse.RawTextHelpFormatter)
     # Essential Args
     # For anthropic: change args below to 'LiteLLM', 'anthropic/claude-3-5-sonnet-20240620' and "ANTHROPIC_API_KEY"
