@@ -106,8 +106,8 @@ def parse_args():
     # Essential Args
     # For anthropic: change args below to 'LiteLLM', 'anthropic/claude-3-5-sonnet-20240620' and "ANTHROPIC_API_KEY"
     parser.add_argument("--model_src", type=str, default="LiteLLM", choices=["HfApi", "LiteLLM", "Transformers"])
-    parser.add_argument("--model", type=str, default="groq/qwen-2.5-coder-32b")
-    parser.add_argument("--LiteLLMModel_API_key_name", type=str, default="GROQ_API_KEY")
+    parser.add_argument("--model", type=str, default="gemini/gemini-2.0-flash")
+    parser.add_argument("--LiteLLMModel_API_key_name", type=str, default="GEMINI_API_KEY")
     args = parser.parse_args()
     return args
 
@@ -166,7 +166,59 @@ def main():
     # import helium for the agent to use
     agent.python_executor("from helium import *", agent.state)
 
-    agent_output = agent.run(task="TBD")
+    # Instruction for using helium for web automation
+    helium_instructions = """
+    You can use helium to access websites. Don't bother about the helium driver, it's already managed.
+    We've already ran "from helium import *"
+    Then you can go to pages!
+    Code:
+    ```py
+    go_to('github.com/trending')
+    ```<end_code>
+
+    You can directly click clickable elements by inputting the text that appears on them.
+    Code:
+    ```py
+    click("Top products")
+    ```<end_code>
+
+    If it's a link:
+    Code:
+    ```py
+    click(Link("Top products"))
+    ```<end_code>
+
+    If you try to interact with an element and it's not found, you'll get a LookupError.
+    In general stop your action after each button click to see what happens on your screenshot.
+    Never try to login in a page.
+
+    To scroll up or down, use scroll_down or scroll_up with as an argument the number of pixels to scroll from.
+    Code:
+    ```py
+    scroll_down(num_pixels=1200) # This will scroll one viewport down
+    ```<end_code>
+
+    When you have pop-ups with a cross icon to close, don't try to click the close icon by finding its element or targeting an 'X' element (this most often fails).
+    Just use your built-in tool `close_popups` to close them:
+    Code:
+    ```py
+    close_popups()
+    ```<end_code>
+
+    You can use .exists() to check for the existence of an element. For example:
+    Code:
+    ```py
+    if Text('Accept cookies?').exists():
+        click('I accept')
+    ```<end_code>
+    """
+
+
+    search_request = """
+    Please navigate to https://www.en.wikipedia.org/wiki/Chicago and give me a sentence containing the word "1992" that mentions a construction accident.
+    """
+    
+    agent_output = agent.run(task=search_request+helium_instructions)
     print("Final output:\n", agent_output)
 
 
