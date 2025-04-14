@@ -1,4 +1,6 @@
 import os
+from io import BytesIO
+from time import sleep
 
 import helium
 from dotenv import load_dotenv
@@ -8,6 +10,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 from smolagents import CodeAgent, GradioUI, LiteLLMModel, Tool
+from smolagents.agents import ActionStep
 
 
 class SearchCtrlF(Tool):
@@ -69,6 +72,33 @@ class ClosePopups(Tool):
         return "Closed any visible modal or pop-up on the page."
 
 
+def save_screenshot(current_memory_step: ActionStep, agent:CodeAgent) -> None:
+    """Save the screenshot of the current page."""
+    sleep(1)  # Let JS animations happen before taking the screenshot
+
+    driver = helium.get_driver()
+    current_step = current_memory_step.step_number
+    if driver is not None:
+        # remove previous screenshots for lean processing
+        for previous_memory_step in agent.memory.steps: # steps: list of ActionStep
+            if isinstance(previous_memory_step, ActionStep) and previous_memory_step.step_number < current_step:
+                previous_memory_step.observations_images = None
+        
+        # Take a screenshot of the current page
+        png_bytes = driver.get_screenshot_as_png()
+        image = Image.open(BytesIO(png_bytes))
+        print("Captured screenshot of the browser.")
+
+        # Save the screenshot to the current memory step
+        current_memory_step.observations_images = [image.copy()] # create a copy to make sure it persists
+
+    # Update / Add to observations with the current url, while keeping the previous ones
+    current_url_info = f"Current URL: {driver.current_url}"
+    current_memory_step.observations = (
+        current_url_info if current_memory_step.observations is None else current_memory_step.observations + "\n" + current_url_info
+    )
+
+
 def parse_args():
     import argparse
     help_msg = """Browser Automation VLM Agent"""
@@ -128,7 +158,7 @@ def main():
         model=model,
         tools=[search_ctrlf, go_back, close_popups],
         additional_authorized_imports=["helium"],
-        step_callbacks=[],
+        step_callbacks=[save_screenshot],
         max_steps=20,
         verbosity_level=2,
     )
