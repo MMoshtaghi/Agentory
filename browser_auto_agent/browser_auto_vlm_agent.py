@@ -4,8 +4,69 @@ import helium
 from dotenv import load_dotenv
 from PIL import Image
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
 from smolagents import CodeAgent, GradioUI, LiteLLMModel, Tool
+
+
+class SearchCtrlF(Tool):
+    name = "search_item_ctrl_f"
+    description = "Search for an item on the current page via Ctrl+F and jumps to the nth occurrence."
+    inputs = {
+        "text": {
+            "type": "string",
+            "description": "The text to search for.",
+        },
+        "nth_result": {
+            "type": "int",
+            "description": "Which occurrence to jump to.",
+            "default": 1,
+        },
+    }
+    output_type = "string"
+
+    def __init__(self, driver, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.driver = driver
+    
+    def forward(self, text:str, nth_result:int=1) -> str:
+        elements = self.driver.find_element(By.XPATH, f"//*[contains(text(), '{text}')]")
+        if nth_result > len(elements):
+            raise Exception(f"Match n°{nth_result} not found (Only {len(elements)} occurrences found).")
+        result = f"Found {len(elements)} occurrences for '{text}'."
+        elem = elements[nth_result - 1]
+        self.driver.execute_script("arguments[0].scrollIntoView();", elem)
+        result += f"\nFocused on the {nth_result} occurrence of '{text}'."
+        return result
+
+class GoBack(Tool):
+    name = "go_back"
+    description = "Goes back to previous page."
+    inputs = {}
+    output_type = "string"
+
+    def __init__(self, driver, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.driver = driver
+    
+    def forward(self) -> str:
+        self.driver.back()
+        return "Went back to previous page."
+
+class ClosePopups(Tool):
+    name = "close_popups"
+    description = "Closes any visible modal or pop-up on the page. Use this to dismiss pop-up windows! This does not work on cookie consent banners."
+    inputs = {}
+    output_type = "string"
+
+    def __init__(self, driver, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.driver = driver
+    
+    def forward(self) -> str:
+        webdriver.ActionChains(self.driver).send_keys(Keys.ESCAPE).perform()
+        return "Closed any visible modal or pop-up on the page."
 
 
 def parse_args():
@@ -57,12 +118,15 @@ def main():
     else:
         raise ValueError('Choose the models source from ["HfApi", "LiteLLM", "Transformers"]')
 
-    
+    # Instantiate the tools
+    search_ctrlf = SearchCtrlF(driver)
+    go_back = GoBack(driver)
+    close_popups = ClosePopups(driver)
 
     # Create the agent
     agent = CodeAgent(
         model=model,
-        tools=[],
+        tools=[search_ctrlf, go_back, close_popups],
         additional_authorized_imports=["helium"],
         step_callbacks=[],
         max_steps=20,
