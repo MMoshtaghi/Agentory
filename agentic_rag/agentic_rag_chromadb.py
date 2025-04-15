@@ -2,6 +2,9 @@ import argparse
 import os
 import os.path as osp
 
+import sys
+sys.path.append(osp.dirname(osp.dirname(osp.abspath(__file__))))
+
 import datasets
 from dotenv import load_dotenv
 from langchain.docstore.document import Document
@@ -14,9 +17,10 @@ from tqdm import tqdm
 from transformers import AutoTokenizer
 
 # from langchain_openai import OpenAIEmbeddings
-from smolagents import GradioUI, LiteLLMModel, Tool
+from smolagents import LiteLLMModel, Tool
 from smolagents.agents import CodeAgent
 
+from gradio_ui import GradioUI
 
 # from smolagents.agents import ToolCallingAgent
 
@@ -152,7 +156,14 @@ def main():
     #     verbose=True,
     # )
 
-    agent = CodeAgent(tools=[retriever_tool], model=model, max_steps=4, verbosity_level=2)
+    agent = CodeAgent(
+        tools=[retriever_tool],
+        model=model,
+        max_steps=4,
+        verbosity_level=2,
+        name="Agentic_RAG_with_ChromaDB",
+        description="This agent can answer your questions from Hugging Face documentation by retrieving relevant documentation from a ChromaDB vector store.",
+    )
 
     GradioUI(agent).launch()
     # try: How can I push a model to the Hub?

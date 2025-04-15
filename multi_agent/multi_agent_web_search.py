@@ -1,13 +1,19 @@
 import argparse
 import os
+import os.path as osp
 import re
+
+import sys
+sys.path.append(osp.dirname(osp.dirname(osp.abspath(__file__))))
 
 import requests
 from dotenv import load_dotenv
 from markdownify import markdownify
 from requests.exceptions import RequestException
 
-from smolagents import CodeAgent, DuckDuckGoSearchTool, GradioUI, LiteLLMModel, ToolCallingAgent, tool
+from smolagents import CodeAgent, DuckDuckGoSearchTool, LiteLLMModel, ToolCallingAgent, tool
+
+from gradio_ui import GradioUI
 
 
 """
@@ -108,7 +114,9 @@ def main():
         tools=[],
         model=model,
         managed_agents=[web_agent],
-        additional_authorized_imports=["time", "numpy", "pandas"]
+        additional_authorized_imports=["time", "numpy", "pandas"],
+        name="Web_Search_Agent_Manager",
+        description="This is a Multi-Agent system. You interact with the manager agent, which delegates tasks to the web search agent.",
     )
 
     GradioUI(manager_agent).launch()

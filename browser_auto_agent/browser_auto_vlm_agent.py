@@ -1,4 +1,9 @@
 import os
+import os.path as osp
+
+import sys
+sys.path.append(osp.dirname(osp.dirname(osp.abspath(__file__))))
+
 from io import BytesIO
 from time import sleep
 
@@ -9,8 +14,10 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
-from smolagents import CodeAgent, GradioUI, LiteLLMModel, Tool
+from smolagents import CodeAgent, LiteLLMModel, Tool
 from smolagents.agents import ActionStep
+
+from gradio_ui import GradioUI
 
 
 class SearchCtrlF(Tool):
@@ -161,6 +168,8 @@ def main():
         step_callbacks=[save_screenshot],
         max_steps=20,
         verbosity_level=2,
+        name="Browser Automation Agent",
+        description="This agent has a Vision-Language Model that has access to a set of tools to automate web browsing."
     )
 
     # import helium for the agent to use
@@ -218,6 +227,7 @@ def main():
     Please navigate to https://www.en.wikipedia.org/wiki/Chicago and give me a sentence containing the word "1992" that mentions a construction accident.
     """
     
+    # GradioUI(agent).launch() # ToDo: we can't pass `helium_instructions` to the agent in the UI, so we need to put it in the system prompt.
     agent_output = agent.run(task=search_request+helium_instructions)
     print("Final output:\n", agent_output)
 
