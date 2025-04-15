@@ -104,7 +104,6 @@ def parse_args():
         default="sentence-transformers/all-MiniLM-L6-v2",
         choices=["sentence-transformers/all-MiniLM-L6-v2"],
     )  # feel free to add support for more embedding functions
-    parser.add_argument("--persist_dir", type=str, default="./chroma_db", help="Path to the persisted vector DB")
 
     args = parser.parse_args()
     return args
@@ -117,13 +116,14 @@ def main():
 
     # embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 
-    if osp.exists(args.persist_dir):
+    db_persist_dir = os.environ.get(key="CHROMADB_PERSISTED_PATH", default="./chroma_db")
+    if osp.exists(db_persist_dir):
         print("using persisted data")
-        vector_store = Chroma(embedding_function=embedding_function, persist_directory=args.persist_dir)
+        vector_store = Chroma(embedding_function=embedding_function, persist_directory=db_persist_dir)
     else:
         docs_processed = prepare_docs()
         vector_store = Chroma.from_documents(
-            documents=docs_processed, embedding=embedding_function, persist_directory=args.persist_dir
+            documents=docs_processed, embedding=embedding_function, persist_directory=db_persist_dir
         )
 
     retriever_tool = RetrieverTool(vector_store)
