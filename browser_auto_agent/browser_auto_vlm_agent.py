@@ -20,7 +20,7 @@ from smolagents.agents import ActionStep
 from gradio_ui import GradioUI
 
 
-class SearchCtrlF(Tool):
+class SearchCtrlF(Tool): # TODO use functional tool with driver = helium.get_driver() instead of a class
     name = "search_item_ctrl_f"
     description = "Search for an item on the current page via Ctrl+F and jumps to the nth occurrence."
     inputs = {
@@ -29,9 +29,10 @@ class SearchCtrlF(Tool):
             "description": "The text to search for.",
         },
         "nth_result": {
-            "type": "int",
+            "type": "integer",
             "description": "Which occurrence to jump to.",
             "default": 1,
+            "nullable": True
         },
     }
     output_type = "string"
@@ -40,14 +41,14 @@ class SearchCtrlF(Tool):
         super().__init__(*args, **kwargs)
         self.driver = driver
     
-    def forward(self, text:str, nth_result:int=1) -> str:
-        elements = self.driver.find_element(By.XPATH, f"//*[contains(text(), '{text}')]")
+    def forward(self, text:str, nth_result: int = 1) -> str:
+        elements = self.driver.find_elements(By.XPATH, f"//*[contains(text(), '{text}')]")
         if nth_result > len(elements):
             raise Exception(f"Match n°{nth_result} not found (Only {len(elements)} occurrences found).")
         result = f"Found {len(elements)} occurrences for '{text}'."
         elem = elements[nth_result - 1]
         self.driver.execute_script("arguments[0].scrollIntoView();", elem)
-        result += f"\nFocused on the {nth_result} occurrence of '{text}'."
+        result += f"\nFocused on the occurrence number {nth_result} of '{text}'."
         return result
 
 class GoBack(Tool):
@@ -115,6 +116,7 @@ def parse_args():
     parser.add_argument("--model_src", type=str, default="LiteLLM", choices=["HfApi", "LiteLLM", "Transformers"])
     parser.add_argument("--model", type=str, default="gemini/gemini-2.0-flash")
     parser.add_argument("--LiteLLMModel_API_key_name", type=str, default="GEMINI_API_KEY")
+    parser.add_argument("--browser", type=str, default="chrome")
     args = parser.parse_args()
     return args
 
@@ -168,12 +170,12 @@ def main():
         step_callbacks=[save_screenshot],
         max_steps=20,
         verbosity_level=2,
-        name="Browser Automation Agent",
+        name="Browser_Automation_Agent",
         description="This agent has a Vision-Language Model that has access to a set of tools to automate web browsing."
     )
 
     # import helium for the agent to use
-    agent.python_executor("from helium import *", agent.state)
+    agent.python_executor("from helium import *")
 
     # Instruction for using helium for web automation
     helium_instructions = """
@@ -224,7 +226,7 @@ def main():
 
 
     search_request = """
-    Please navigate to https://www.en.wikipedia.org/wiki/Chicago and give me a sentence containing the word "1992" that mentions a construction accident.
+    Please navigate to https://en.wikipedia.org/wiki/Chicago and give me a sentence containing the word "1992" that mentions a construction accident.
     """
     
     # GradioUI(agent).launch() # ToDo: we can't pass `helium_instructions` to the agent in the UI, so we need to put it in the system prompt.
