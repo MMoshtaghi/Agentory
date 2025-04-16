@@ -104,7 +104,14 @@ def main():
         # since sometimes web search requires exploring many pages before finding the correct answer,
         # we prefer to increase the number of max_steps to 10.
         name="web_search_agent",
-        description="Runs web searches for you.",
+        description="""
+        Runs web searches for you. example usage:
+        Code:
+        ```py
+        output = web_search_agent(task="<task>")
+        print("web_search_agent result:\n", output)
+        ```<end_code>
+        """, # ToDo: include an example of assistant agent calling in the system prompt
         # we gave this agent attributes name and description, mandatory attributes
         # to make this agent callable by its manager agent.
     )
