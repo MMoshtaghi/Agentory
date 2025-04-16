@@ -14,70 +14,45 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
-from smolagents import CodeAgent, LiteLLMModel, Tool
+from smolagents import CodeAgent, LiteLLMModel, Tool, tool
 from smolagents.agents import ActionStep
 
 from gradio_ui import GradioUI
 
 
-class SearchCtrlF(Tool): # TODO use functional tool with driver = helium.get_driver() instead of a class
-    name = "search_item_ctrl_f"
-    description = "Search for an item on the current page via Ctrl+F and jumps to the nth occurrence."
-    inputs = {
-        "text": {
-            "type": "string",
-            "description": "The text to search for.",
-        },
-        "nth_result": {
-            "type": "integer",
-            "description": "Which occurrence to jump to.",
-            "default": 1,
-            "nullable": True
-        },
-    }
-    output_type = "string"
+@tool
+def search_item_ctrl_f(text:str, nth_result: int = 1) -> str:
+    """
+    Search for an item on the current page via Ctrl+F and jumps to the nth occurrence.
+    Args:
+        text: The text to search for.
+        nth_result: Which occurrence to jump to. (default": 1)
+    """
+    driver = helium.get_driver()
+    elements = driver.find_elements(By.XPATH, f"//*[contains(text(), '{text}')]")
+    if nth_result > len(elements):
+        raise Exception(f"Match n°{nth_result} not found (Only {len(elements)} occurrences found).")
+    result = f"Found {len(elements)} occurrences for '{text}'."
+    elem = elements[nth_result - 1]
+    driver.execute_script("arguments[0].scrollIntoView();", elem)
+    result += f"\nFocused on the occurrence number {nth_result} of '{text}'."
+    return result
 
-    def __init__(self, driver, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.driver = driver
-    
-    def forward(self, text:str, nth_result: int = 1) -> str:
-        elements = self.driver.find_elements(By.XPATH, f"//*[contains(text(), '{text}')]")
-        if nth_result > len(elements):
-            raise Exception(f"Match n°{nth_result} not found (Only {len(elements)} occurrences found).")
-        result = f"Found {len(elements)} occurrences for '{text}'."
-        elem = elements[nth_result - 1]
-        self.driver.execute_script("arguments[0].scrollIntoView();", elem)
-        result += f"\nFocused on the occurrence number {nth_result} of '{text}'."
-        return result
 
-class GoBack(Tool):
-    name = "go_back"
-    description = "Goes back to previous page."
-    inputs = {}
-    output_type = "string"
+@tool
+def go_back() -> str:
+    """Goes back to previous page."""
+    driver = helium.get_driver()
+    driver.back()
+    return "Went back to previous page."
 
-    def __init__(self, driver, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.driver = driver
-    
-    def forward(self) -> str:
-        self.driver.back()
-        return "Went back to previous page."
 
-class ClosePopups(Tool):
-    name = "close_popups"
-    description = "Closes any visible modal or pop-up on the page. Use this to dismiss pop-up windows! This does not work on cookie consent banners."
-    inputs = {}
-    output_type = "string"
-
-    def __init__(self, driver, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.driver = driver
-    
-    def forward(self) -> str:
-        webdriver.ActionChains(self.driver).send_keys(Keys.ESCAPE).perform()
-        return "Closed any visible modal or pop-up on the page."
+@tool
+def close_popups() -> str:
+    """Closes any visible modal or pop-up on the page. Use this to dismiss pop-up windows! This does not work on cookie consent banners."""
+    driver = helium.get_driver()
+    webdriver.ActionChains(driver).send_keys(Keys.ESCAPE).perform()
+    return "Closed any visible modal or pop-up on the page."
 
 
 def save_screenshot(current_memory_step: ActionStep, agent:CodeAgent) -> None:
@@ -157,15 +132,10 @@ def main():
     else:
         raise ValueError('Choose the models source from ["HfApi", "LiteLLM", "Transformers"]')
 
-    # Instantiate the tools
-    search_ctrlf = SearchCtrlF(driver)
-    go_back = GoBack(driver)
-    close_popups = ClosePopups(driver)
-
     # Create the agent
     agent = CodeAgent(
         model=model,
-        tools=[search_ctrlf, go_back, close_popups],
+        tools=[search_item_ctrl_f, go_back, close_popups],
         additional_authorized_imports=["helium"],
         step_callbacks=[save_screenshot],
         max_steps=20,
