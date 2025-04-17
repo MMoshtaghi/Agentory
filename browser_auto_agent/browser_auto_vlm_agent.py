@@ -140,68 +140,28 @@ def main():
         step_callbacks=[save_screenshot],
         max_steps=20,
         verbosity_level=2,
-        name="Browser_Automation_Agent",
+        name="Web_Browser_Automation_Agent",
         description="This agent has a Vision-Language Model that has access to a set of tools to automate web browsing."
     )
 
     # import helium for the agent to use
     agent.python_executor("from helium import *")
 
-    # Instruction for using helium for web automation
-    helium_instructions = """
-    You can use helium to access websites. Don't bother about the helium driver, it's already managed.
-    We've already ran "from helium import *"
-    Then you can go to pages!
-    Code:
-    ```py
-    go_to('github.com/trending')
-    ```<end_code>
+    # search_request = """
+    # Please navigate to https://en.wikipedia.org/wiki/Chicago and give me a sentence containing the word "1992" that mentions a construction accident.
+    # """
 
-    You can directly click clickable elements by inputting the text that appears on them.
-    Code:
-    ```py
-    click("Top products")
-    ```<end_code>
-
-    If it's a link:
-    Code:
-    ```py
-    click(Link("Top products"))
-    ```<end_code>
-
-    If you try to interact with an element and it's not found, you'll get a LookupError.
-    In general stop your action after each button click to see what happens on your screenshot.
-    Never try to login in a page.
-
-    To scroll up or down, use scroll_down or scroll_up with as an argument the number of pixels to scroll from.
-    Code:
-    ```py
-    scroll_down(num_pixels=1200) # This will scroll one viewport down
-    ```<end_code>
-
-    When you have pop-ups with a cross icon to close, don't try to click the close icon by finding its element or targeting an 'X' element (this most often fails).
-    Just use your built-in tool `close_popups` to close them:
-    Code:
-    ```py
-    close_popups()
-    ```<end_code>
-
-    You can use .exists() to check for the existence of an element. For example:
-    Code:
-    ```py
-    if Text('Accept cookies?').exists():
-        click('I accept')
-    ```<end_code>
-    """
-
-
-    search_request = """
-    Please navigate to https://en.wikipedia.org/wiki/Chicago and give me a sentence containing the word "1992" that mentions a construction accident.
-    """
+    # github_request = """
+    # I'm trying to find how hard I have to work to get a repo in github.com/trending.
+    # Can you navigate to the profile for the top author of the top trending repo, and give me their total number of commits over the last year?
+    # """
     
-    # GradioUI(agent).launch() # ToDo: we can't pass `helium_instructions` to the agent in the UI, so we need to put it in the system prompt.
-    agent_output = agent.run(task=search_request+helium_instructions)
-    print("Final output:\n", agent_output)
+    GradioUI(agent).launch()
+    # we can't add `helium_instructions` to the system_prompt, since the system_prompt is rewritten in run method.
+    # so as a hack, I just temporarily injected it in gradio_ui.py
+    
+    # agent_output = agent.run(task=search_request)
+    # print("Final output:\n", agent_output)
 
 
 if __name__ == "__main__":

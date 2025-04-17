@@ -26,6 +26,68 @@ from smolagents.memory import ActionStep, FinalAnswerStep, MemoryStep
 from smolagents.utils import _is_package_available
 
 
+# Instruction for using helium for web automation
+helium_instructions = """
+    You can use helium to access websites. Don't bother about the helium driver, it's already managed.
+    We've already ran "from helium import *"
+    Then you can go to pages!
+    Code:
+    ```py
+    go_to('github.com/trending')
+    ```<end_code>
+
+    You can write a given text into the text field or element identified by that parameter,:
+    Code:
+    ```py
+    write(text="<text>", into="<text_field>" or <element>)
+    ```<end_code>
+
+    The search field element on most websites can be accessed with into="Search", no matter what placeholder is written in the search field:
+    Code:
+    ```py
+    write(text="iPhone6", into="Search")
+    ```<end_code>
+
+
+    You can directly click clickable elements by inputting the text that appears on them.
+    Code:
+    ```py
+    click("Top products")
+    ```<end_code>
+
+    If it's a link:
+    Code:
+    ```py
+    click(Link("Top products"))
+    ```<end_code>
+    
+
+    If you try to interact with an element and it's not found, you'll get a LookupError.
+    In general, perform your actions STEP-BY-STEP (write one-line codes) to see what happens on your screenshot.
+    Never try to login in a page.
+
+    To scroll up or down, use scroll_down or scroll_up with as an argument the number of pixels to scroll from.
+    Code:
+    ```py
+    scroll_down(num_pixels=1000) # recommend to use 1000 based on current screen size.
+    ```<end_code>
+
+    When you have pop-ups with a cross icon to close, don't try to click the close icon by finding its element or targeting an 'X' element (this most often fails).
+    Just use your built-in tool `close_popups` to close them:
+    Code:
+    ```py
+    close_popups()
+    ```<end_code>
+
+    You can use .exists() to check for the existence of an element. For example:
+    Code:
+    ```py
+    if Text('Accept cookies?').exists():
+        click('I accept')
+    ```<end_code>
+    """
+
+
 def get_step_footnote_content(step_log: MemoryStep, step_name: str) -> str:
     """Get a footnote string for a step log with duration and token information"""
     step_footnote = f"**{step_name}**"
@@ -218,7 +280,8 @@ class GradioUI:
             messages.append(gr.ChatMessage(role="user", content=prompt))
             yield messages
 
-            for msg in stream_to_gradio(session_state["agent"], task=prompt, reset_agent_memory=False):
+            extra_info = "\n"+helium_instructions if self.name == "Web_Browser_Automation_Agent" else ""
+            for msg in stream_to_gradio(session_state["agent"], task=prompt+extra_info, reset_agent_memory=False):
                 messages.append(msg)
                 yield messages
 
