@@ -47,7 +47,7 @@ Once the system is running, you can:
 - Leverage AI-powered search assistance.
 
 ## License
-This project is licensed under the MIT License. See `LICENSE` for details.
+See `LICENSE` for details.
 
 ## Contributing
 Feel free to submit issues and pull requests! 🚀
